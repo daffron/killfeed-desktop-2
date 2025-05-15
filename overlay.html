@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Killfeed Overlay</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 8px; /* Reduced font size */
+      overflow: hidden;
+      pointer-events: none; /* Allow mouse interactions to pass through */
+    }
+    #killfeed {
+      position: absolute;
+      top: 10px;
+      left: calc(100% - 295px);
+      width: 280px;
+      background: rgba(0, 0, 0, 0.3); /* Increased transparency */
+      border-radius: 5px;
+      padding: 5px;
+      overflow: hidden; /* Hide scroll bar */
+      pointer-events: auto; /* Enable interactions only within the overlay */
+    }
+    .kill-item {
+      margin-bottom: 3px;
+      display: flex;
+      justify-content: end;
+      white-space: nowrap; /* Prevent text wrapping */
+      overflow: hidden; /* Hide overflowing text */
+      text-overflow: ellipsis; /* Add ellipsis for truncated text */
+    }
+    .player {
+      margin-right: 8px;  
+      color: green;
+      font-weight: normal; /* Reduced boldness */
+      white-space: nowrap; /* Prevent text wrapping */
+      overflow: hidden; /* Hide overflowing text */
+      text-overflow: ellipsis; /* Add ellipsis for truncated text */
+    }
+    .opponent {
+      color: red;
+      font-weight: normal; /* Reduced boldness */
+      white-space: nowrap; /* Prevent text wrapping */
+      overflow: hidden; /* Hide overflowing text */
+      text-overflow: ellipsis; /* Add ellipsis for truncated text */
+    }
+    .action {
+      margin-right: 8px;
+      color: white;
+      font-weight: normal; /* Reduced boldness */
+      white-space: nowrap; /* Prevent text wrapping */
+      overflow: hidden; /* Hide overflowing text */
+      text-overflow: ellipsis; /* Add ellipsis for truncated text */
+    }
+    .weapon {
+      margin-left: 8px;  
+      color: yellow;
+      font-weight: normal; /* Styling for weapon */
+      white-space: nowrap; /* Prevent text wrapping */
+      overflow: hidden; /* Hide overflowing text */
+      text-overflow: ellipsis; /* Add ellipsis for truncated text */
+    }
+    .clan-logo {
+      width: 6px;
+      height: 6px;
+      margin-left: 1px;
+    }
+  </style>
+</head>
+<body>
+  <div id="killfeed"></div>
+  <script>
+    const { ipcRenderer } = require('electron');
+
+    const killfeed = document.getElementById('killfeed');
+
+    ipcRenderer.on('update-killfeed', (event, data) => {
+      killfeed.innerHTML = data
+        .slice(0, 10) // Limit to 10 items
+        .map(item => `
+          <div class='kill-item'>
+            <span class='player'>${item.player}</span>
+            <span class='action'>${item.action === 'killed' ? 'rekt' : 'rekt by'}</span>
+            <span class='opponent'>${item.opponent}</span>
+            ${item.clan === 'OC' ? `<img src='/src/assets/oc_icon.png' alt='OC Logo' class='clan-logo' />` : ''}
+            <span class='weapon'>(${item.weapon?.toLowerCase()})</span> <!-- Added weapon -->
+          </div>
+        `)
+        .join('');
+    });
+  </script>
+</body>
+</html>
