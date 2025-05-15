@@ -37,30 +37,58 @@ ipcMain.on('toggle-overlay', (event, enable) => {
       overlayWindow = new BrowserWindow({
         width,
         height,
+        // focusable: false,
         transparent: true,
-        frame: false,
+        frame: false, // Ensure no title bar is displayed
         alwaysOnTop: true,
-        skipTaskbar: true,
-        resizable: false,
-        focusable: false, // Prevent the overlay from receiving focus
+        autoHideMenuBar: true,
+        // resizable: false,
+        // focusable: false, // Prevent the overlay from receiving focus
         webPreferences: {
           nodeIntegration: true,
           contextIsolation: false,
           sandbox: false,
+          preload: path.join(__dirname, 'preload.js'),
         },
       });
 
       console.log('Overlay window created');
 
       overlayWindow.setIgnoreMouseEvents(true, { forward: true }); // Allow mouse events to pass through
-      // overlayWindow.webContents.openDevTools();
       console.log(`OVERLAY_WINDOW_VITE_DEV_SERVER_URL`, OVERLAY_WINDOW_VITE_DEV_SERVER_URL)
       if (OVERLAY_WINDOW_VITE_DEV_SERVER_URL) {
           overlayWindow.loadURL(`${OVERLAY_WINDOW_VITE_DEV_SERVER_URL}/overlay.html`);
       } else {
           overlayWindow.loadFile(path.join(__dirname, `../renderer/${OVERLAY_WINDOW_VITE_NAME}/overlay.html`));
       }
-      overlayWindow.setAlwaysOnTop(true, 'screen-saver');
+      overlayWindow.setAlwaysOnTop(true, 'dock');
+
+      // overlayWindow.webContents.openDevTools();
+
+      overlayWindow.on("blur", () => {
+        overlayWindow.setResizable(true);
+        const [w, h] = overlayWindow.getSize();
+        overlayWindow.setSize(w, h + 1);
+        overlayWindow.setSize(w, h);
+        overlayWindow.setResizable(false);
+      });
+      overlayWindow.on("focus", () => {
+        overlayWindow.setResizable(true);
+        const [w, h] = overlayWindow.getSize();
+        overlayWindow.setSize(w, h + 1);
+        overlayWindow.setSize(w, h);
+        overlayWindow.setResizable(false);
+      });
+
+      setInterval(() => {
+        if (overlayWindow) {
+          overlayWindow.setResizable(true);
+          const [w, h] = overlayWindow.getSize();
+          overlayWindow.setSize(w, h + 1);
+          overlayWindow.setSize(w, h);
+          overlayWindow.setResizable(false);
+        }
+      }, 1000);
 
       overlayWindow.on('closed', () => {
         overlayWindow = null;
@@ -91,6 +119,10 @@ const createWindow = () => {
   const mainWindow = new BrowserWindow({
     width: 900,
     height: 670,
+    // frame: false,
+    resizable: true, 
+    roundedCorners: true,
+    
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -103,10 +135,29 @@ const createWindow = () => {
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
     // Open the DevTools.
-    mainWindow.webContents.openDevTools();
+    // mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
+
+  mainWindow.on("blur", () => {
+    const [w, h] = mainWindow.getSize();
+    mainWindow.setSize(w, h + 1);
+    mainWindow.setSize(w, h);
+  });
+  mainWindow.on("focus", () => {
+    const [w, h] = mainWindow.getSize();
+    mainWindow.setSize(w, h + 1);
+    mainWindow.setSize(w, h);
+  });
+
+  setInterval(() => {
+    if (mainWindow) {
+      const [w, h] = mainWindow.getSize();
+      mainWindow.setSize(w, h + 1);
+      mainWindow.setSize(w, h);
+    }
+  }, 1000);
 
 
   // Ensure the overlay window closes when the main window is closed

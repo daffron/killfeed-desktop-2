@@ -5,6 +5,7 @@ body {
   background-color: #111827;
   color: #d1d5db;
   font-family: Arial, sans-serif;
+  overflow: overlay; /* Allow scrolling but hide the scrollbar */
 }
 
 code {

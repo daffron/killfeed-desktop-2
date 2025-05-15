@@ -1,5 +1,6 @@
 const { FusesPlugin } = require('@electron-forge/plugin-fuses');
 const { FuseV1Options, FuseVersion } = require('@electron/fuses');
+const { prerelease } = require('@mui/material');
 require('dotenv').config();
 
 module.exports = {
@@ -76,7 +77,8 @@ module.exports = {
           owner: 'daffron',
           name: 'killfeed-desktop-2'
         },
-        prerelease: true
+        prerelease: false,
+        draft: false,
       }
     }
   ]

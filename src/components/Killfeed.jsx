@@ -43,6 +43,7 @@ function Killfeed() {
     try {
       const params = new URLSearchParams();
       params.append("server", server);
+      params.append("source", "electron");
       if (username !== 'All Players') {
         params.append("username", username);
       }
@@ -102,9 +103,12 @@ function Killfeed() {
   // Send kill feed data to the main process for the overlay
   useEffect(() => {
     if (overlayEnabled) {
-      window.api.sendKillfeedData(parsedData);
+      window.api.sendKillfeedData({
+        parsedData,
+        currentPlayer,
+      });
     }
-  }, [overlayEnabled, parsedData]);
+  }, [overlayEnabled, parsedData, currentPlayer]);
 
   return (
     <div

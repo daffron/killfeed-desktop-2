@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Killfeed Overlay</title>
+  <title></title>
   <style>
     body {
       margin: 0;
@@ -13,9 +13,10 @@
       font-family: Arial, sans-serif;
       font-size: 8px; /* Reduced font size */
       overflow: hidden;
-      pointer-events: none; /* Allow mouse interactions to pass through */
+      pointer-events: none;
+      -webkit-app-region: no-drag; /* Prevent dragging the window */
     }
-    #killfeed {
+    #wrapper{
       position: absolute;
       top: 10px;
       left: calc(100% - 295px);
@@ -24,7 +25,10 @@
       border-radius: 5px;
       padding: 5px;
       overflow: hidden; /* Hide scroll bar */
-      pointer-events: auto; /* Enable interactions only within the overlay */
+      pointer-events: auto;
+    }
+    #killfeed {
+
     }
     .kill-item {
       margin-bottom: 3px;
@@ -35,7 +39,7 @@
       text-overflow: ellipsis; /* Add ellipsis for truncated text */
     }
     .player {
-      margin-right: 8px;  
+      margin-right: 5px;  
       color: green;
       font-weight: normal; /* Reduced boldness */
       white-space: nowrap; /* Prevent text wrapping */
@@ -50,7 +54,7 @@
       text-overflow: ellipsis; /* Add ellipsis for truncated text */
     }
     .action {
-      margin-right: 8px;
+      margin-right: 5px;
       color: white;
       font-weight: normal; /* Reduced boldness */
       white-space: nowrap; /* Prevent text wrapping */
@@ -58,7 +62,7 @@
       text-overflow: ellipsis; /* Add ellipsis for truncated text */
     }
     .weapon {
-      margin-left: 8px;  
+      margin-left: 5px;  
       color: yellow;
       font-weight: normal; /* Styling for weapon */
       white-space: nowrap; /* Prevent text wrapping */
@@ -70,17 +74,70 @@
       height: 6px;
       margin-left: 1px;
     }
+    #stats {
+
+    }
+    #stats span {
+      margin-right: 10px;
+    }
+    #total-kills {
+      color: green;
+      font-weight: normal; /* Reduced boldness */
+    }
+    #total-deaths {
+      color: red;
+      font-weight: normal; /* Reduced boldness */
+    }
+    #kpm {
+      color: yellow;
+      font-weight: bold; /* Reduced boldness */
+    }
+    #divider {
+      width: 100%;
+      height: 1px;
+      background-color: rgba(255, 255, 255, 0.5);
+      margin: 5px 0;
+    }
   </style>
 </head>
 <body>
-  <div id="killfeed"></div>
+  <div id="wrapper">
+    <div id="stats">
+      <span id="total-kills">Kills: 0</span>
+      <span id="total-deaths">Deaths: 0</span>
+      <span id="kpm">KPM: 0</span>
+    </div>
+    <div id="divider"></div>
+
+    <div id="killfeed"></div>
+  </div>
   <script>
     const { ipcRenderer } = require('electron');
 
     const killfeed = document.getElementById('killfeed');
+    let totalKills = 0;
+    let totalDeaths = 0;
+    let kpm = 0;
+
+    const updateStats = () => {
+      document.getElementById('total-kills').textContent = `Kills: ${totalKills}`;
+      document.getElementById('total-deaths').textContent = `Deaths: ${totalDeaths}`;
+      document.getElementById('kpm').textContent = `KPM: ${kpm}`;
+    };
 
     ipcRenderer.on('update-killfeed', (event, data) => {
-      killfeed.innerHTML = data
+      console.log('Received data:', data); // Debugging line
+      const parsedData = data.parsedData;
+      const currentPlayer = data.currentPlayer;
+
+      totalKills = currentPlayer?.kills || 0;
+      totalDeaths = currentPlayer?.deaths || 0;
+      if (currentPlayer) {
+        kpm = (currentPlayer.time_seconds ? (currentPlayer.kills / currentPlayer.time_seconds) * 60 : 0).toFixed(2);
+      }
+      updateStats();
+
+      killfeed.innerHTML = parsedData
         .slice(0, 10) // Limit to 10 items
         .map(item => `
           <div class='kill-item'>

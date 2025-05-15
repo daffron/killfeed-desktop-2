@@ -1,8 +1,8 @@
 {
   "name": "killfeed-desktop-2",
-  "productName": "killfeed-desktop-2",
-  "version": "1.0.0",
-  "description": "My Electron application description",
+  "productName": "hll-killfeed-overlay-win32",
+  "version": "1.0.9",
+  "description": "Hell Let Loose Killfeed & Overlay",
   "main": ".vite/build/main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -41,5 +41,9 @@
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "update-electron-app": "^3.1.1"
+  },
+    "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daffron/killfeed-desktop-2.git"
   }
 }
