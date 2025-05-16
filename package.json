@@ -1,7 +1,7 @@
 {
   "name": "killfeed-desktop-2",
   "productName": "hll-killfeed-overlay-win32",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Hell Let Loose Killfeed & Overlay",
   "main": ".vite/build/main.js",
   "scripts": {
